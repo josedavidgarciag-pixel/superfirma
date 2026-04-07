@@ -1,0 +1,40 @@
+# Entornos virtuales
+venv/
+env/
+.venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+
+# Variables de entorno
+.env
+.env.*
+
+# Base de datos local
+*.db
+*.sqlite3
+
+# Carpetas de datos (las carpetas se mantienen con .gitkeep)
+uploads/*
+processed/*
+temp/*
+!uploads/.gitkeep
+!processed/.gitkeep
+!temp/.gitkeep
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Diagnóstico temporal
+test_debug_nombre.py
+debug_nombre_*.png

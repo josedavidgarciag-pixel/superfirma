@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Entrega completada — Superfirma{% endblock %}
+
+{% block content %}
+<div class="min-h-[calc(100vh-112px)] flex items-center justify-center px-4 py-16">
+  <div class="w-full max-w-lg text-center">
+
+    <!-- Animated checkmark -->
+    <div class="flex justify-center mb-8">
+      <div class="w-24 h-24 rounded-full bg-green-100 flex items-center justify-center">
+        <svg class="w-12 h-12 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+        </svg>
+      </div>
+    </div>
+
+    <h1 class="text-3xl font-extrabold text-slate-800 mb-3">
+      ¡Entrega registrada!
+    </h1>
+    <p class="text-slate-500 mb-2">
+      Tu examen ha sido procesado y guardado correctamente.
+    </p>
+    <p class="text-xs text-slate-400 mb-8 font-mono bg-slate-100 rounded-lg px-4 py-2 inline-block">
+      {{ filename }}
+    </p>
+
+    <div class="bg-brand-50 border border-brand-100 rounded-2xl p-6 mb-8 text-left space-y-3">
+      <p class="text-sm font-semibold text-brand-800">¿Qué ha pasado?</p>
+      <ul class="text-sm text-brand-700 space-y-2">
+        <li class="flex gap-2">
+          <span class="mt-0.5">✅</span>
+          <span>La tinta de tu firma y nombre fue extraída de las fotos.</span>
+        </li>
+        <li class="flex gap-2">
+          <span class="mt-0.5">✅</span>
+          <span>Las imágenes fueron insertadas en el documento Word en las celdas correctas.</span>
+        </li>
+        <li class="flex gap-2">
+          <span class="mt-0.5">✅</span>
+          <span>El examen firmado quedó guardado en el servidor para el profesor.</span>
+        </li>
+      </ul>
+    </div>
+
+    <a href="{{ url_for('index') }}"
+       class="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700
+              text-white font-semibold text-sm px-8 py-3 rounded-xl transition">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+      </svg>
+      Nueva entrega
+    </a>
+
+  </div>
+</div>
+{% endblock %}

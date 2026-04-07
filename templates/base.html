@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Superfirma{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50:  '#eef2ff',
+              100: '#e0e7ff',
+              200: '#c7d2fe',
+              400: '#818cf8',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              800: '#3730a3',
+              900: '#312e81',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    [x-cloak] { display: none !important; }
+    .drop-active { border-color: #4f46e5 !important; background-color: #eef2ff !important; }
+  </style>
+  {% block head %}{% endblock %}
+</head>
+<body class="h-full bg-slate-50 font-sans antialiased">
+
+  <!-- Topbar -->
+  <header class="fixed top-0 inset-x-0 z-30 bg-brand-700 shadow-md">
+    <div class="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
+      <a href="{{ url_for('index') }}" class="flex items-center gap-2 text-white font-bold text-lg tracking-tight">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 0119 9.414V19a2 2 0 01-2 2z"/>
+        </svg>
+        Superfirma
+      </a>
+      <nav class="flex items-center gap-3 text-sm">
+        {% if session.get('admin') %}
+          <a href="{{ url_for('admin_dashboard') }}"
+             class="text-white/80 hover:text-white transition px-3 py-1.5 rounded-md hover:bg-white/10">
+            Dashboard
+          </a>
+          <a href="{{ url_for('admin_logout') }}"
+             class="text-white/80 hover:text-white transition px-3 py-1.5 rounded-md hover:bg-white/10">
+            Cerrar sesión
+          </a>
+        {% else %}
+          <a href="{{ url_for('admin_login') }}"
+             class="text-white/80 hover:text-white transition px-3 py-1.5 rounded-md border border-white/30 hover:bg-white/10">
+            Acceso profesor
+          </a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <!-- Content -->
+  <main class="pt-14 min-h-full">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 text-center py-4 text-xs text-slate-400">
+    Superfirma &copy; {{ now.year if now else '2026' }} — Gestión de entregas FPE
+  </footer>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+{% block title %}Entregar Examen — Superfirma{% endblock %}
+
+{% block content %}
+
+<!-- Loading overlay (shown while form is submitting) -->
+<div id="loadingOverlay"
+     class="hidden fixed inset-0 z-50 bg-brand-900/80 backdrop-blur-sm flex flex-col items-center justify-center gap-6">
+  <div class="w-16 h-16 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
+  <div class="text-center">
+    <p class="text-white font-semibold text-lg">Procesando tu entrega…</p>
+    <p class="text-white/70 text-sm mt-1">Extrayendo tinta y generando el documento</p>
+  </div>
+</div>
+
+<!-- Hero -->
+<section class="bg-gradient-to-br from-brand-800 via-brand-700 to-brand-600 py-14 px-4">
+  <div class="max-w-2xl mx-auto text-center text-white">
+    <div class="inline-flex items-center gap-2 bg-white/15 rounded-full px-4 py-1.5 text-sm font-medium mb-5">
+      <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+      Entrega abierta
+    </div>
+    <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">
+      Entrega tu examen
+    </h1>
+    <p class="text-white/75 text-base sm:text-lg max-w-xl mx-auto">
+      Sube el documento Word con tus respuestas y las fotos de tu firma y nombre.
+      Recibirás el examen sellado y listo para el profesor.
+    </p>
+  </div>
+</section>
+
+<!-- Form card -->
+<section class="max-w-2xl mx-auto px-4 -mt-6 pb-16">
+
+  {% if errors %}
+  <div class="mb-4 bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-700">
+    <p class="font-semibold mb-1">Corrige los siguientes errores:</p>
+    <ul class="list-disc list-inside space-y-0.5">
+      {% for e in errors %}<li>{{ e }}</li>{% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  <div class="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden">
+
+    <form id="examForm" method="post" enctype="multipart/form-data" novalidate>
+
+      <!-- Nombre del alumno -->
+      <div class="p-6 border-b border-slate-100">
+        <label for="alumno" class="block text-sm font-semibold text-slate-700 mb-1.5">
+          Nombre completo del alumno/a <span class="text-red-500">*</span>
+        </label>
+        <input
+          id="alumno" name="alumno" type="text" required
+          value="{{ alumno_name or '' }}"
+          placeholder="Ej. María González Pérez"
+          class="w-full border border-slate-300 rounded-lg px-3.5 py-2.5 text-sm
+                 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent
+                 placeholder:text-slate-400 transition">
+      </div>
+
+      <!-- Examen DOCX -->
+      <div class="p-6 border-b border-slate-100">
+        <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+          Examen resuelto (.docx) <span class="text-red-500">*</span>
+        </label>
+        <div id="dropExamen"
+             class="relative border-2 border-dashed border-slate-300 rounded-xl p-6
+                    text-center cursor-pointer transition hover:border-brand-400 hover:bg-brand-50"
+             ondragover="handleDragOver(event, this)"
+             ondragleave="handleDragLeave(event, this)"
+             ondrop="handleDrop(event, this, 'examen', 'labelExamen', null)">
+          <input type="file" id="examen" name="examen" accept=".docx" required
+                 class="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                 onchange="showLabel(this, 'labelExamen', null)">
+          <svg class="w-10 h-10 mx-auto mb-2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 0119 9.414V19a2 2 0 01-2 2z"/>
+          </svg>
+          <p class="text-sm font-medium text-slate-600">Arrastra o haz clic para seleccionar</p>
+          <p class="text-xs text-slate-400 mt-0.5">Archivo Word con tus respuestas (.docx)</p>
+          <p id="labelExamen" class="text-xs font-semibold text-brand-600 mt-2 hidden"></p>
+        </div>
+      </div>
+
+      <!-- Firma + Nombre en grid -->
+      <div class="grid sm:grid-cols-2 gap-0 sm:gap-px bg-slate-100">
+
+        <!-- Firma -->
+        <div class="p-6 bg-white">
+          <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+            Foto de tu firma <span class="text-red-500">*</span>
+          </label>
+          <div class="bg-brand-50 border border-brand-100 rounded-lg p-3 text-xs text-brand-800 mb-3 space-y-0.5">
+            <p>📸 Firma en papel <strong>blanco</strong> con bolígrafo</p>
+            <p>💡 Buena luz, sin sombras</p>
+          </div>
+          <div id="dropFirma"
+               class="relative border-2 border-dashed border-slate-300 rounded-xl p-5
+                      text-center cursor-pointer transition hover:border-brand-400 hover:bg-brand-50"
+               ondragover="handleDragOver(event, this)"
+               ondragleave="handleDragLeave(event, this)"
+               ondrop="handleDrop(event, this, 'firma', 'labelFirma', 'previewFirma')">
+            <input type="file" id="firma" name="firma" accept="image/*" required
+                   class="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                   onchange="showLabel(this, 'labelFirma', 'previewFirma')">
+            <svg class="w-8 h-8 mx-auto mb-1.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+            </svg>
+            <p class="text-xs font-medium text-slate-600">Arrastra o haz clic</p>
+            <p class="text-xs text-slate-400">JPG, PNG, WEBP</p>
+            <p id="labelFirma" class="text-xs font-semibold text-brand-600 mt-1.5 hidden"></p>
+          </div>
+          <!-- Preview -->
+          <div id="previewFirma" class="hidden mt-3">
+            <p class="text-xs text-slate-500 mb-1">Vista previa:</p>
+            <div class="bg-white border border-slate-200 rounded-lg p-3 flex items-center justify-center min-h-[60px]">
+              <img id="imgFirma" src="" alt="Firma"
+                   class="max-h-16 max-w-full object-contain"
+                   style="mix-blend-mode: multiply; filter: contrast(1.3) brightness(0.9)">
+            </div>
+          </div>
+        </div>
+
+        <!-- Nombre -->
+        <div class="p-6 bg-white">
+          <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+            Foto de nombre y apellidos <span class="text-red-500">*</span>
+          </label>
+          <div class="bg-brand-50 border border-brand-100 rounded-lg p-3 text-xs text-brand-800 mb-3 space-y-0.5">
+            <p>✍️ Escribe en <strong>MAYÚSCULAS</strong> con boli</p>
+            <p>📄 Papel blanco sin rayas, buena luz</p>
+          </div>
+          <div id="dropNombre"
+               class="relative border-2 border-dashed border-slate-300 rounded-xl p-5
+                      text-center cursor-pointer transition hover:border-brand-400 hover:bg-brand-50"
+               ondragover="handleDragOver(event, this)"
+               ondragleave="handleDragLeave(event, this)"
+               ondrop="handleDrop(event, this, 'nombre', 'labelNombre', 'previewNombre')">
+            <input type="file" id="nombre" name="nombre" accept="image/*" required
+                   class="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                   onchange="showLabel(this, 'labelNombre', 'previewNombre')">
+            <svg class="w-8 h-8 mx-auto mb-1.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+            </svg>
+            <p class="text-xs font-medium text-slate-600">Arrastra o haz clic</p>
+            <p class="text-xs text-slate-400">JPG, PNG, WEBP</p>
+            <p id="labelNombre" class="text-xs font-semibold text-brand-600 mt-1.5 hidden"></p>
+          </div>
+          <!-- Preview -->
+          <div id="previewNombre" class="hidden mt-3">
+            <p class="text-xs text-slate-500 mb-1">Vista previa:</p>
+            <div class="bg-white border border-slate-200 rounded-lg p-3 flex items-center justify-center min-h-[60px]">
+              <img id="imgNombre" src="" alt="Nombre"
+                   class="max-h-16 max-w-full object-contain"
+                   style="mix-blend-mode: multiply; filter: contrast(1.3) brightness(0.9)">
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /grid -->
+
+      <!-- Submit -->
+      <div class="p-6 bg-slate-50 flex items-center gap-4">
+        <button type="submit" id="submitBtn"
+                class="flex-1 sm:flex-none bg-brand-600 hover:bg-brand-700 disabled:opacity-60
+                       text-white font-semibold text-sm px-8 py-3 rounded-xl
+                       transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500">
+          Entregar examen
+        </button>
+        <p class="text-xs text-slate-500 leading-snug max-w-xs">
+          Tu examen se firmará automáticamente y quedará registrado en el sistema.
+        </p>
+      </div>
+
+    </form>
+  </div><!-- /card -->
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // ── Drag & drop ──────────────────────────────────────────────────────────
+  function handleDragOver(e, el) {
+    e.preventDefault();
+    el.classList.add('drop-active');
+  }
+  function handleDragLeave(e, el) {
+    el.classList.remove('drop-active');
+  }
+  function handleDrop(e, el, inputId, labelId, previewId) {
+    e.preventDefault();
+    el.classList.remove('drop-active');
+    const input = document.getElementById(inputId);
+    if (e.dataTransfer.files.length) {
+      // Transfer file to hidden input via DataTransfer
+      const dt = new DataTransfer();
+      dt.items.add(e.dataTransfer.files[0]);
+      input.files = dt.files;
+      showLabel(input, labelId, previewId);
+    }
+  }
+
+  // ── File label + preview ─────────────────────────────────────────────────
+  function showLabel(input, labelId, previewId) {
+    const label = document.getElementById(labelId);
+    const file  = input.files[0];
+    if (!file) { label.textContent = ''; label.classList.add('hidden'); return; }
+    label.textContent = '✓ ' + file.name;
+    label.classList.remove('hidden');
+
+    if (previewId && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const previewContainer = document.getElementById(previewId);
+        const imgId = previewId === 'previewFirma' ? 'imgFirma' : 'imgNombre';
+        document.getElementById(imgId).src = e.target.result;
+        previewContainer.classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  // ── Loading overlay on submit ────────────────────────────────────────────
+  document.getElementById('examForm').addEventListener('submit', function(e) {
+    // Basic client-side validation
+    const alumno = document.getElementById('alumno').value.trim();
+    const examen = document.getElementById('examen').files.length;
+    const firma  = document.getElementById('firma').files.length;
+    const nombre = document.getElementById('nombre').files.length;
+    if (!alumno || !examen || !firma || !nombre) return; // Let server validate
+
+    document.getElementById('submitBtn').disabled = true;
+    document.getElementById('loadingOverlay').classList.remove('hidden');
+  });
+</script>
+{% endblock %}

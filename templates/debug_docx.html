@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Inspección DOCX — Superfirma{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-10">
+  <div class="mb-6">
+    <a href="{{ url_for('admin_dashboard') }}"
+       class="text-sm text-brand-600 hover:underline">&larr; Volver al dashboard</a>
+  </div>
+
+  <h1 class="text-xl font-bold text-slate-800 mb-2">Inspector de tablas DOCX</h1>
+  <p class="text-slate-500 text-sm mb-6">
+    Sube un .docx para ver todas las tablas, filas y celdas que contiene.
+    Útil para verificar los textos de las celdas de firma y nombre.
+  </p>
+
+  <div class="bg-white rounded-2xl shadow border border-slate-100 p-6 mb-6">
+    <form id="debugForm" enctype="multipart/form-data">
+      <div class="flex items-center gap-4">
+        <input type="file" name="docx" accept=".docx" required
+               class="block text-sm text-slate-600 file:mr-4 file:py-2 file:px-4
+                      file:rounded-lg file:border-0 file:text-sm file:font-semibold
+                      file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100">
+        <button type="submit"
+                class="bg-brand-600 hover:bg-brand-700 text-white font-semibold
+                       text-sm px-6 py-2.5 rounded-xl transition">
+          Analizar
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div id="result" class="hidden">
+    <div class="bg-white rounded-2xl shadow border border-slate-100 overflow-hidden">
+      <div class="bg-slate-50 border-b border-slate-200 px-6 py-3 text-sm font-semibold text-slate-600">
+        Resultado
+      </div>
+      <pre id="resultPre"
+           class="p-6 text-xs font-mono text-slate-700 overflow-x-auto whitespace-pre-wrap max-h-[60vh] overflow-y-auto">
+      </pre>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.getElementById('debugForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const data = new FormData(this);
+    const res  = await fetch('{{ url_for("debug_docx") }}', { method: 'POST', body: data });
+    const json = await res.json();
+    document.getElementById('resultPre').textContent = JSON.stringify(json, null, 2);
+    document.getElementById('result').classList.remove('hidden');
+  });
+</script>
+{% endblock %}
