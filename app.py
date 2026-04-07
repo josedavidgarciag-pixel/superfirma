@@ -354,6 +354,13 @@ def not_found(e):
 
 
 # ── Bootstrap ─────────────────────────────────────────────────────────────────
+# Runs on every startup (gunicorn import + direct python app.py)
+
+os.makedirs(PROCESSED_DIR, exist_ok=True)
+os.makedirs(TEMP_DIR, exist_ok=True)
+os.makedirs(UPLOADS_DIR, exist_ok=True)
+init_db()
+
 
 @app.context_processor
 def inject_now():
@@ -361,8 +368,4 @@ def inject_now():
 
 
 if __name__ == '__main__':
-    os.makedirs(PROCESSED_DIR, exist_ok=True)
-    os.makedirs(TEMP_DIR, exist_ok=True)
-    os.makedirs(UPLOADS_DIR, exist_ok=True)
-    init_db()
     app.run(debug=False, port=5001)
